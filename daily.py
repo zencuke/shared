@@ -44,7 +44,7 @@ class CheckBox(object):
     
     s = ui.Switch()
     s.value = 0
-    action = lambda val: cls.checkAction(<val)
+    action = lambda val: cls.checkAction(val)
     s.action = action
     s.frame = (160, 0,  75, 25)
     cs.content_view.add_subview(s)
