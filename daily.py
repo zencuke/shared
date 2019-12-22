@@ -1,76 +1,61 @@
 
 import ui
- 
-def switchActionOnce(val):
-  print(  'switchActionOnce.value   = <{0:2d}>'.format(val.value  ))
-  if val.value:
-    val.enabled = 0
-  print(  'switchActionOnce.enabled = <{0:2d}>'.format(val.enabled))
+import console
+import traceback
 
-def switchAction(val):
-  print(  'switchAction.value       = <{0:2d}>'.format(val.value  ))
+def checkBoxAction(switch):
+  print(  'switchActionOnce.switch.value   = <{0:2d}>'.format(switch.value  ))
+  if switch.value:
+    switch.enabled = 0
+  print(  'switch.enabled = <{0:2d}>'.format(switch.enabled))
 
-class MockTableCellType(type):
-  def __instancecheck__(self, other):
-    if other == ui.TableViewCell:
-      return True
+def numberAction(text):
+  pass
 
-class EmptyCell(object):
-  __metaclass__ = MockTableCellType
-
-  def __new__(cls):
-    ce = ui.TableViewCell()
-    v = ui.View(bg_color=(0.5,0.5,0.5,.1),
-                frame=ce.content_view.bounds)
-
-    l = ui.Label()
-    l.text = 'EmptyCell'
-    l.frame = ( 12, 0, 150, 25)
-    v.add_subview(l)
-    
-    ce.content_view.add_subview(v)
-    return ce
-
-class CheckBox(object):
-  __metaclass__ = MockTableCellType
-
-  def __new__(cls, prompt):
-    cs = ui.TableViewCell()
-
-    l = ui.Label()
-    l.text = prompt
-    l.frame = ( 12, 0, 150, 25)
-    cs.content_view.add_subview(l)
-    
-    s = ui.Switch()
-    s.value = 0
-    action = lambda val: cls.checkAction(val)
-    s.action = action
-    s.frame = (160, 0,  75, 25)
-    cs.content_view.add_subview(s)
-    return cs
+def EmptyCell():
+  cell = ui.TableViewCell()
   
-  def checkAction(self, val):
-    print(val)
+  l = ui.Label()
+  l.text = 'EmptyCell'
+  l.frame = ( 12, 0, 150, 25)
+  cell.content_view.add_subview(l)
+  
+  return cell
+
+def CheckBox(prompt):
+  cell = ui.TableViewCell()
+
+  l = ui.Label()
+  l.text = prompt
+  l.frame = ( 12, 0, 150, 25)
+  cell.content_view.add_subview(l)
+  
+  s = ui.Switch()
+  s.prompt = prompt
+  s.value = 0
+  s.action = checkBoxAction
+  s.frame = (160, 0,  75, 25)
+  cell.content_view.add_subview(s)
+
+  return cell
+
+
+def Number(prompt, defaultValue):
+  cell = ui.TableViewCell()
+
+  l = ui.Label()
+  l.text = prompt
+  l.frame = ( 12, 0, 150, 25)
+  cell.content_view.add_subview(l)
     
+  s = ui.TextField()
+  s.prompt = prompt
+  s.text = repr(defaultValue)
+  s.action = numberAction
+  s.frame = (160, 0,  75, 25)
+  cell.content_view.add_subview(s)
 
-class Number(object):
-  __metaclass__ = MockTableCellType
-
-  def __new__(cls, prompt, defaultValue):
-    cs = ui.TableViewCell()
-
-    l = ui.Label()
-    l.text = prompt
-    l.frame = ( 12, 0, 150, 25)
-    cs.content_view.add_subview(l)
-    
-    s = ui.TextField()
-    s.text = repr(defaultValue)
-    s.action = lambda val: switchActionOnce(val)
-    s.frame = (160, 0,  75, 25)
-    cs.content_view.add_subview(s)
-    return cs
+  return cell
 
 class makeTableView(object):
 
@@ -86,11 +71,15 @@ class makeTableView(object):
     elif row == 1:
       cell = CheckBox('AM pills')
     elif row == 2:
-      cell = Number('AM lantus',25)
+      cell = Number('AM Lantus',25)
+    elif row == 3:
+      cell = Number('AM Humalog',0)
+    elif row == 6:
+      cell = CheckBox('PM pills')
     elif row == 7:
-      cell = CheckBox('PM pill')
+      cell = Number('PM Lantus',45)
     elif row == 8:
-      cell = Number('PM lantus',45)
+      cell = Number('PM Humalog',0)
     else:
       cell = EmptyCell()
     return cell
@@ -113,9 +102,8 @@ class makeTableView(object):
 
 
 t = ui.TableView()
-t.frame = (2, 2, 150, 280)
+t.frame = (2, 2, 350, 280)
 t.border_width = 1
 t.border_color = 'black'
 t.data_source = makeTableView()
 t.present('sheet')
-
